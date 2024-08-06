@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Memory Game{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div id="game-board" class="row"></div>
+        <div id="last-play-time" class="text-center mt-3"></div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/game.js') }}"></script>
+{% endblock %}
