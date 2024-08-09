@@ -1,0 +1,131 @@
+body, html {
+    height: 100%;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+#game-board {
+    margin-top: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center; /* Center the cards horizontally */
+    align-items: center; /* Center the cards vertically */
+    overflow: hidden; /* Ensure the cards do not overflow the container */
+    max-width: 90%; 
+    margin-left: auto;
+    margin-right: auto;
+    padding: 10px;
+    border: 2px solid #ccc;
+    box-sizing: border-box;
+}
+
+.card {
+    width: 150px;
+    height: 150px;
+    margin: 10px;
+    perspective: 1000px;
+    cursor: pointer;
+    position: relative;
+    box-sizing: border-box;
+    outline: none; /* Remove default outline */
+}
+
+.card-inner {
+    width: 100%;
+    height: 100%;
+    transition: transform 0.5s;
+    transform-style: preserve-3d;
+    position: absolute;
+    top: 0;
+    left: 0;
+    outline: none; /* Remove default outline */
+}
+
+.card.flipped .card-inner {
+    transform: rotateY(180deg);
+}
+
+.card-front, .card-back {
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    outline: none; /* Remove default outline */
+}
+
+.card-front {
+    background-size: cover;
+    background-position: center;
+    transform: rotateY(180deg);
+}
+
+.card-back {
+    background: linear-gradient(109.6deg, rgb(255, 219, 47) 11.2%, rgb(244, 253, 0) 100.2%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    outline: none; /* Remove default outline */
+    font-size: 24px;
+    color: #FBFCFF;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.results-container .results {
+    font-size: 2rem;
+    text-align: center;
+    margin-top: 20px;
+}
+
+.share-container {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.share-container button {
+    padding: 10px 20px;
+    font-size: 1rem;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    background-color: #4CAF50;
+    color: white;
+}
+
+.share-container button:hover {
+    background-color: #45a049;
+}
+
+#last-play-time {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 1.2rem;
+    color: #333;
+}
+
+.footer {
+    flex-shrink: 0;
+    text-align: center;
+}
+
+.results-container {
+    margin-top: 20px;
+}
+
+#countdown-timer {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.btn {
+    margin: 5px;
+}
