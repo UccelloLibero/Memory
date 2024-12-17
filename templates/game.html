@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}Memory{% endblock %}
+
+{% block content %}
+
+<div class="container mt-4 text-center">
+    <div class="game-icon my-3">
+        <img src="{{ url_for('static', filename='icons/icon1.svg') }}" alt="Dark Memory Chip" style="width: 50px;">
+        <img src="{{ url_for('static', filename='icons/icon2.svg') }}" alt="Light Memory Chip" style="width: 50px;">
+    </div>
+    <p>Test your memory!</p>
+    <p>Flip cards to find matching pairs.</p>
+
+    <!-- Timer -->
+    <div class="timer my-3">
+        <strong>Time: <span id="timer">00:00</span></strong>
+    </div>
+
+    <!-- Game Board -->
+    <div id="game-board" class="game-board mx-auto"></div>
+</div>
+
+{% endblock %}

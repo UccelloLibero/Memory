@@ -8,6 +8,7 @@ body, html {
 #game-board {
     margin-top: 20px;
     display: flex;
+    min-height: 500px;
     flex-wrap: wrap;
     justify-content: center; /* Center the cards horizontally */
     align-items: center; /* Center the cards vertically */
@@ -128,4 +129,8 @@ body, html {
 
 .btn {
     margin: 5px;
+}
+
+.about-game li{
+    list-style-type: kannada;
 }
