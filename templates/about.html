@@ -1,22 +1,106 @@
 {% extends "base.html" %}
 
-{% block title %}About Memory{% endblock %}
+{% block title %}About · Memory{% endblock %}
 
 {% block content %}
-<h1>About Memory Game</h1>
-<p>Memory is a fun and fast-paced card-matching game designed to challenge your recall skills. The game is timed, so the quicker you match all the cards, the better your score!</p>
-<p>Memory is a great way to test your memory and improve your cognitive skills. It's also a fun way to pass the time and challenge yourself to beat your previous scores.</p>
-<p>The game consists of 6 pairs, making a total of 12 cards. Your goal is to flip the cards, find all matching pairs, and beat the clock.</p>
-<p>Your results are color-coded based on the number of flips it takes to find a match:</p>
-<ul class="about-game">
-    <li>Green Square: Match found on the first flip.</li>
-    <li>Purple Square: Match found on the second flip.</li>
-    <li>Blue Square: Match found on the third flip.</li>
-    <li>Yellow Square: Match found on the fourth flip.</li>
-    <li>Red Square: Match found on the fifth flip.</li>
-    <li>Black Square: Match found after five flips.</li>
-</ul>
-<p>Good luck, and see how fast your memory can match.</p>
+<section class="about">
+    <h1 class="page-title">How to play</h1>
+    <p class="lead">Memory is a fast card-matching game that tests your recall. Find all 6 pairs in as few moves as you can.</p>
 
-<p>Project history: <a href="https://github.com/UccelloLibero/Memory" target="_blank">GitHub/UccelloLibero</a></p>
+    <ol class="steps">
+        <li class="panel">
+            <span class="step-num">1</span>
+            <div>
+                <h2>Flip two cards</h2>
+                <p>Each turn you flip two cards. That's one move.</p>
+            </div>
+        </li>
+        <li class="panel">
+            <span class="step-num">2</span>
+            <div>
+                <h2>Remember them</h2>
+                <p>No match? They flip back, so remember where they were.</p>
+            </div>
+        </li>
+        <li class="panel">
+            <span class="step-num">3</span>
+            <div>
+                <h2>Clear the board</h2>
+                <p>Keep going until every pair is found. Turning over new cards is free. Forgetting them costs you.</p>
+            </div>
+        </li>
+    </ol>
+
+    <div class="panel">
+        <h2>Points</h2>
+        <ul class="rating-list">
+            <li><span class="rating">+100</span> for every match</li>
+            <li><span class="rating">+50</span> extra for each match in a row: 2 in a row is +150, 3 in a row +200, and so on</li>
+            <li><span class="rating">−25</span> for every slip, and it resets your streak</li>
+        </ul>
+        <p class="muted">A slip is a miss you could have avoided: you'd already seen the match, or you flipped a card you'd already seen. Misses while exploring new cards are free. A flawless game scores 1350. Your personal best is your highest score.</p>
+    </div>
+
+    <div class="panel">
+        <h2>Stars</h2>
+        <ul class="rating-list">
+            <li><span class="rating">★★★</span> No slips</li>
+            <li><span class="rating">★★☆</span> 1 or 2 slips</li>
+            <li><span class="rating">★☆☆</span> 3 slips or more</li>
+        </ul>
+        <p class="muted">Stars reward memory, not luck. Moves and time break ties on your personal best.</p>
+    </div>
+
+    <div class="panel">
+        <h2>Colour squares</h2>
+        <p class="muted">Each pair earns a colour based on how many times you had flipped its cards by the time you matched it.</p>
+        <ul class="legend-list">
+            <li><span class="swatch lvl-1"></span> Matched on first sight</li>
+            <li><span class="swatch lvl-2"></span> 2 flips</li>
+            <li><span class="swatch lvl-3"></span> 3 flips</li>
+            <li><span class="swatch lvl-4"></span> 4 flips</li>
+            <li><span class="swatch lvl-5"></span> 5 flips</li>
+            <li><span class="swatch lvl-6"></span> More than 5 flips</li>
+        </ul>
+    </div>
+
+    <div class="panel privacy">
+        <div>
+            <h2>Your privacy</h2>
+            <p class="muted">Your scores stay on this device. We don't collect any data.</p>
+        </div>
+        <button id="reset-scores" class="btn btn-danger">Reset my scores</button>
+    </div>
+
+    <p class="credit">
+        Project history: <a href="https://github.com/UccelloLibero/Memory" target="_blank" rel="noopener">GitHub/UccelloLibero</a> · © <a href="https://maya.mcpherson.io/" target="_blank" rel="noopener">Maya</a>
+    </p>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Two-tap reset so scores aren't wiped by accident
+    const resetButton = document.getElementById('reset-scores');
+    let confirmTimer;
+    resetButton.addEventListener('click', () => {
+        if (!resetButton.classList.contains('confirming')) {
+            resetButton.classList.add('confirming');
+            resetButton.innerText = 'Tap again to confirm';
+            confirmTimer = setTimeout(() => {
+                resetButton.classList.remove('confirming');
+                resetButton.innerText = 'Reset my scores';
+            }, 3000);
+            return;
+        }
+        clearTimeout(confirmTimer);
+        try {
+            localStorage.removeItem('memory-best');
+            sessionStorage.removeItem('memory-session');
+        } catch {}
+        resetButton.classList.remove('confirming');
+        resetButton.innerText = 'Scores cleared ✓';
+        resetButton.disabled = true;
+    });
+</script>
 {% endblock %}

@@ -1,0 +1,15 @@
+#!/bin/bash
+# Optimizes new or changed images in originals/ and adds them to this commit.
+# Enabled with: git config core.hooksPath .githooks
+
+cd "$(git rev-parse --show-toplevel)"
+
+if ! command -v sips > /dev/null; then
+    echo "pre-commit: sips not found (macOS only), skipping image optimization" >&2
+    exit 0
+fi
+
+./scripts/optimize_images.sh | while read -r out; do
+    git add -- "$out"
+    echo "pre-commit: optimized $out ($(( $(stat -f%z "$out") / 1024 )) KB)"
+done

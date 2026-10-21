@@ -1,0 +1,41 @@
+#!/bin/bash
+# Turns full-size images in originals/ into small square card images in static/images/.
+# Runs automatically on git commit (see .githooks/pre-commit), or by hand:
+#   ./scripts/optimize_images.sh          only new or changed images
+#   ./scripts/optimize_images.sh --all    redo every image
+# Prints the path of each image it writes. Uses sips, which is built into macOS.
+
+set -euo pipefail
+
+SIZE=600      # Cards display at up to 170px; 600px stays sharp on 3x screens
+QUALITY=80    # JPEG quality
+
+FORCE=false
+[ "${1:-}" = "--all" ] && FORCE=true
+
+cd "$(dirname "$0")/.."
+mkdir -p static/images
+
+shopt -s nullglob nocaseglob
+for src in originals/*.{jpg,jpeg,png,heic,webp}; do
+    name="$(basename "${src%.*}").jpg"
+    out="static/images/$name"
+
+    # Skip images that are already up to date
+    if ! $FORCE && [ "$out" -nt "$src" ]; then
+        continue
+    fi
+
+    width=$(sips -g pixelWidth "$src" | awk '/pixelWidth/ {print $2}')
+    height=$(sips -g pixelHeight "$src" | awk '/pixelHeight/ {print $2}')
+
+    # Scale the shorter side to SIZE, then crop the centre square (matches the card's cover crop)
+    if [ "$width" -lt "$height" ]; then
+        sips -s format jpeg -s formatOptions "$QUALITY" --resampleWidth "$SIZE" "$src" --out "$out" > /dev/null
+    else
+        sips -s format jpeg -s formatOptions "$QUALITY" --resampleHeight "$SIZE" "$src" --out "$out" > /dev/null
+    fi
+    sips --cropToHeightWidth "$SIZE" "$SIZE" "$out" > /dev/null
+
+    echo "$out"
+done

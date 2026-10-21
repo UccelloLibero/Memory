@@ -3,28 +3,51 @@
 {% block title %}Memory{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center mt-4">
-    <div class="col-md-8 text-center">
-        <div class="game-icon my-3">
-            <img src="{{ url_for('static', filename='icons/icon1.svg') }}" alt="Dark Memory Chip" style="width: 50px;">
-            <img src="{{ url_for('static', filename='icons/icon2.svg') }}" alt="Light Memory Chip" style="width: 50px;">
+<section class="hero">
+    <!-- Decorative fan of cards -->
+    <div class="card-fan" aria-hidden="true">
+        <div class="fan-card fan-left"></div>
+        <div class="fan-card fan-right"></div>
+        <div class="fan-card fan-center">
+            <img src="{{ url_for('static', filename='icons/brain.svg') }}" alt="">
         </div>
-        <!-- Game Title -->
-        <h1>Memory</h1>
-
-        <!-- Game Instructions -->
-        <p>Test your memory: Flip cards to find matching pairs in recors time.</p>
-
-        <!-- Game Start Button -->
-        <button class="btn btn-warning px-4 py-2 mt-2" onclick="window.location.href='/game'">Play</button>
-         
-        <!-- Timed Game and Color Coding Explanation -->
-         <div class="mt-4">
-            <p>The game is timed, and your results are color-coded based on the number of flips it takes to find a match.</p>
-            <p>Challenge yourself to achieve the best score!</p>
-         </div>
     </div>
-</div>
 
-<script src="{{ url_for('static', filename='js/game.js') }}"></script>
+    <h1 class="title" aria-label="Memory">
+        {% for letter in "Memory" %}<span style="--i: {{ loop.index0 }}">{{ letter }}</span>{% endfor %}
+    </h1>
+    <p class="tagline">Flip. Remember. Match. In as few moves as you can.</p>
+
+    <a href="/game" class="btn btn-play">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12-7.5a1 1 0 0 0 0-1.72l-12-7.5A1 1 0 0 0 7 4.5z"/></svg>
+        Play
+    </a>
+
+    <p id="home-best" class="home-best" hidden></p>
+
+    <div class="legend" aria-label="Score colours">
+        <span class="swatch lvl-1" title="First sight"></span>
+        <span class="swatch lvl-2" title="2 flips"></span>
+        <span class="swatch lvl-3" title="3 flips"></span>
+        <span class="swatch lvl-4" title="4 flips"></span>
+        <span class="swatch lvl-5" title="5 flips"></span>
+        <span class="swatch lvl-6" title="6+ flips"></span>
+    </div>
+    <p class="fine-print">Every pair earns a colour. Green means you nailed it on first sight.</p>
+    <p class="credit">© <a href="https://maya.mcpherson.io/" target="_blank" rel="noopener">Maya</a></p>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Show the player's personal best if they have one
+    try {
+        const best = JSON.parse(localStorage.getItem('memory-best'));
+        if (best && best.v === 2) {
+            const el = document.getElementById('home-best');
+            el.textContent = `🏆 Your best: ${best.score} points`;
+            el.hidden = false;
+        }
+    } catch {}
+</script>
 {% endblock %}
