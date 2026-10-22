@@ -173,6 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const card = document.createElement('div');
             card.classList.add('card');
             card.dataset.flipCount = '0';
+            card.dataset.image = image;
             card.style.setProperty('--i', index); // Staggers the deal animation
 
             const cardInner = document.createElement('div');
@@ -180,7 +181,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const cardFront = document.createElement('div');
             cardFront.classList.add('card-front');
-            cardFront.style.backgroundImage = `url(${image})`;
+            cardFront.style.setProperty('--img', `url("${image}")`);
+
+            // The whole photo; edges facing the blurred background are feathered by shape
+            const photo = document.createElement('img');
+            photo.className = 'card-photo';
+            photo.alt = '';
+            photo.addEventListener('load', () => {
+                const ratio = photo.naturalWidth / photo.naturalHeight;
+                if (ratio > 1.02) photo.classList.add('landscape');
+                else if (ratio < 0.98) photo.classList.add('portrait');
+            });
+            photo.src = image;
+            cardFront.appendChild(photo);
 
             const cardBack = document.createElement('div');
             cardBack.classList.add('card-back');
@@ -278,7 +291,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function isSlip(firstCard, secondCard) {
         const partnerSeen = [...gameBoard.querySelectorAll('.card')].some(card =>
             card !== firstCard.card &&
-            card.querySelector('.card-front').style.backgroundImage === firstCard.card.querySelector('.card-front').style.backgroundImage &&
+            card.dataset.image === firstCard.image &&
             parseInt(card.dataset.flipCount) > 0
         );
         return partnerSeen || secondCard.wasSeen;
@@ -331,17 +344,25 @@ document.addEventListener('DOMContentLoaded', () => {
         const dpr = window.devicePixelRatio || 1;
         canvas.width = innerWidth * dpr;
         canvas.height = innerHeight * dpr;
+        // Display at screen size; without this, high-DPI screens show it at 2x and push the right side off-screen
+        canvas.style.width = `${innerWidth}px`;
+        canvas.style.height = `${innerHeight}px`;
         ctx.scale(dpr, dpr);
 
-        const pieces = Array.from({ length: 160 }, () => ({
-            x: innerWidth / 2 + (Math.random() - 0.5) * 120,
-            y: innerHeight * 0.45,
-            vx: (Math.random() - 0.5) * 16,
-            vy: -Math.random() * 16 - 6,
-            size: 6 + Math.random() * 6,
-            spin: Math.random() * Math.PI,
-            colour: partyColours[Math.floor(Math.random() * partyColours.length)]
-        }));
+        // Two cannons in the bottom corners, firing up and in towards the middle
+        const power = Math.sqrt(innerHeight) * 0.95; // Reaches the top third on any screen
+        const pieces = Array.from({ length: 200 }, (_, i) => {
+            const side = i % 2 === 0 ? 1 : -1; // 1 = left cannon, -1 = right cannon
+            return {
+                x: side === 1 ? 0 : innerWidth,
+                y: innerHeight,
+                vx: side * (3 + Math.random() * 9) * Math.min(1, innerWidth / 800 + 0.4),
+                vy: -(power * (0.75 + Math.random() * 0.45)),
+                size: 6 + Math.random() * 6,
+                spin: Math.random() * Math.PI,
+                colour: partyColours[Math.floor(Math.random() * partyColours.length)]
+            };
+        });
 
         const start = performance.now();
         function frame(now) {
@@ -359,7 +380,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 ctx.fillRect(-p.size / 2, -p.size / 4, p.size, p.size / 2);
                 ctx.restore();
             });
-            if (now - start < 3000) {
+            if (now - start < 3500) {
                 requestAnimationFrame(frame);
             } else {
                 canvas.remove();

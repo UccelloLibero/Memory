@@ -24,13 +24,16 @@
         </div>
     </div>
 
-    <!-- Pair progress -->
-    <div id="progress" class="progress" aria-label="Pairs found"></div>
+    <!-- Progress and board, centred in the space below the HUD -->
+    <div class="play-area">
+        <!-- Pair progress -->
+        <div id="progress" class="progress" aria-label="Pairs found"></div>
 
-    <!-- Game Board -->
-    <div class="board-wrap">
-        <div id="game-board" class="game-board" data-images='{{ card_images | tojson }}'></div>
-        <div id="toast" class="toast" aria-live="polite"></div>
+        <!-- Game Board -->
+        <div class="board-wrap">
+            <div id="game-board" class="game-board" data-images='{{ card_images | tojson }}'></div>
+            <div id="toast" class="toast" aria-live="polite"></div>
+        </div>
     </div>
 </section>
 {% endblock %}

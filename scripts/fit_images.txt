@@ -1,0 +1,6 @@
+# Card images shown whole (scaled to fit, no crop) instead of cropped to a square.
+# One name per line, without the extension. Read by scripts/optimize_images.sh.
+card58
+card59
+card60
+card61

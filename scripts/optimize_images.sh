@@ -16,13 +16,26 @@ FORCE=false
 cd "$(dirname "$0")/.."
 mkdir -p static/images
 
+# Images listed here keep their whole picture instead of being cropped square
+FIT_LIST=scripts/fit_images.txt
+should_fit() {
+    [ -f "$FIT_LIST" ] && grep -qx "$1" "$FIT_LIST"
+}
+
 shopt -s nullglob nocaseglob
 for src in originals/*.{jpg,jpeg,png,heic,webp}; do
     name="$(basename "${src%.*}").jpg"
     out="static/images/$name"
 
-    # Skip images that are already up to date
-    if ! $FORCE && [ "$out" -nt "$src" ]; then
+    # Skip images that are already up to date (changing the fit list also counts as a change)
+    if ! $FORCE && [ "$out" -nt "$src" ] && { [ ! -f "$FIT_LIST" ] || [ "$out" -nt "$FIT_LIST" ]; }; then
+        continue
+    fi
+
+    if should_fit "$(basename "${src%.*}")"; then
+        # Scale the longer side to SIZE and keep the whole picture
+        sips -s format jpeg -s formatOptions "$QUALITY" -Z "$SIZE" "$src" --out "$out" > /dev/null
+        echo "$out"
         continue
     fi
 
