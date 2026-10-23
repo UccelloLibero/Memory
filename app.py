@@ -1,8 +1,10 @@
 import os
 
-from flask import Flask, render_template, send_from_directory, url_for
+from flask import Flask, render_template, request, send_from_directory, url_for
 
 app = Flask(__name__)
+# Unversioned static files (fonts, the brain icon) can be cached for a day
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 60 * 60 * 24
 
 IMAGE_EXTENSIONS = ('.jpg', '.jpeg', '.png', '.webp')
 
@@ -23,6 +25,16 @@ def card_images():
 @app.context_processor
 def asset_helpers():
     return {'static_url': static_url}
+
+
+@app.after_request
+def cache_versioned_files(response):
+    """Files requested with ?v= change URL whenever they change, so browsers can keep them for a year."""
+    if request.path.startswith('/static/') and 'v' in request.args and response.status_code == 200:
+        response.cache_control.max_age = 60 * 60 * 24 * 365
+        response.cache_control.public = True
+        response.cache_control.immutable = True
+    return response
 
 @app.route('/')
 def index():

@@ -191,6 +191,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const ratio = photo.naturalWidth / photo.naturalHeight;
                 if (ratio > 1.02) photo.classList.add('landscape');
                 else if (ratio < 0.98) photo.classList.add('portrait');
+                // Only non-square photos need the blurred backdrop
+                cardFront.classList.toggle('has-backdrop', ratio > 1.02 || ratio < 0.98);
             });
             photo.src = image;
             cardFront.appendChild(photo);
@@ -341,13 +343,11 @@ document.addEventListener('DOMContentLoaded', () => {
         canvas.className = 'confetti';
         document.body.appendChild(canvas);
         const ctx = canvas.getContext('2d');
-        const dpr = window.devicePixelRatio || 1;
-        canvas.width = innerWidth * dpr;
-        canvas.height = innerHeight * dpr;
-        // Display at screen size; without this, high-DPI screens show it at 2x and push the right side off-screen
+        // Draw at 1x even on Retina: confetti doesn't need the detail, and it's 4x fewer pixels to blend
+        canvas.width = innerWidth;
+        canvas.height = innerHeight;
         canvas.style.width = `${innerWidth}px`;
         canvas.style.height = `${innerHeight}px`;
-        ctx.scale(dpr, dpr);
 
         // Two cannons in the bottom corners, firing up and in towards the middle
         const power = Math.sqrt(innerHeight) * 0.95; // Reaches the top third on any screen
@@ -365,22 +365,29 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         const start = performance.now();
+        let last = start;
         function frame(now) {
-            ctx.clearRect(0, 0, innerWidth, innerHeight);
-            pieces.forEach(p => {
-                p.vy += 0.45;
-                p.vx *= 0.99;
-                p.x += p.vx;
-                p.y += p.vy;
-                p.spin += 0.2;
-                ctx.save();
-                ctx.translate(p.x, p.y);
-                ctx.rotate(p.spin);
+            // Move by elapsed time (in 60fps frames), so dropped frames don't slow the confetti down
+            const step = Math.min((now - last) / (1000 / 60), 3);
+            last = now;
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            let visible = 0;
+            for (const p of pieces) {
+                p.vy += 0.45 * step;
+                p.vx *= Math.pow(0.99, step);
+                p.x += p.vx * step;
+                p.y += p.vy * step;
+                p.spin += 0.2 * step;
+                if (p.y > innerHeight + 20 && p.vy > 0) continue; // Fallen off the bottom
+                visible++;
+                const cos = Math.cos(p.spin), sin = Math.sin(p.spin);
+                ctx.setTransform(cos, sin, -sin, cos, p.x, p.y);
                 ctx.fillStyle = p.colour;
                 ctx.fillRect(-p.size / 2, -p.size / 4, p.size, p.size / 2);
-                ctx.restore();
-            });
-            if (now - start < 3500) {
+            }
+            // Stop once everything has landed, or after 3.5s at most
+            if (visible > 0 && now - start < 3500) {
                 requestAnimationFrame(frame);
             } else {
                 canvas.remove();
