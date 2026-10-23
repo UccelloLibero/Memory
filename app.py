@@ -1,9 +1,8 @@
 import os
 
-from flask import Flask, render_template, send_from_directory, session, url_for
+from flask import Flask, render_template, send_from_directory, url_for
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'  # Replace with a secure secret key
 
 IMAGE_EXTENSIONS = ('.jpg', '.jpeg', '.png', '.webp')
 
