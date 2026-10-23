@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const slipPenalty = 25; // Only misses the player could have avoided cost points
     const bestVersion = 2; // Bests from before slip scoring aren't comparable
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const partyColours = ['#b6e94a', '#8b5cf6', '#ff6fae', '#4fd8ff', '#facc15'];
+    const partyColors = ['#b6e94a', '#8b5cf6', '#ff6fae', '#4fd8ff', '#facc15'];
     let flippedCards = [];
     let matchedPairs = 0;
     let pairLevels = []; // Score level (1-6) per pair, in the order matched
@@ -251,16 +251,16 @@ document.addEventListener('DOMContentLoaded', () => {
             ));
             pairLevels.push(level);
 
-            const colour = `var(--lvl-${level})`;
+            const color = `var(--lvl-${level})`;
             [firstCard.card, secondCard.card].forEach(card => {
-                card.style.setProperty('--pair-colour', colour);
+                card.style.setProperty('--pair-color', color);
                 card.classList.add('matched');
                 // Wait for the flip to land before bursting
                 setTimeout(() => sparkle(card), 350);
             });
 
             const dot = progress.children[matchedPairs - 1];
-            dot.style.background = colour;
+            dot.style.background = color;
             dot.classList.add('filled');
 
             if (matchedPairs < totalPairs) cheer(level, points);
@@ -330,7 +330,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const distance = 50 + Math.random() * 40;
             bit.style.setProperty('--dx', `${Math.cos(angle) * distance}px`);
             bit.style.setProperty('--dy', `${Math.sin(angle) * distance}px`);
-            bit.style.setProperty('--c', partyColours[i % partyColours.length]);
+            bit.style.setProperty('--c', partyColors[i % partyColors.length]);
             card.appendChild(bit);
             setTimeout(() => bit.remove(), 700);
         }
@@ -349,7 +349,7 @@ document.addEventListener('DOMContentLoaded', () => {
         canvas.style.width = `${innerWidth}px`;
         canvas.style.height = `${innerHeight}px`;
 
-        // Two cannons in the bottom corners, firing up and in towards the middle
+        // Two cannons in the bottom corners, firing up and in toward the middle
         const power = Math.sqrt(innerHeight) * 0.95; // Reaches the top third on any screen
         const pieces = Array.from({ length: 200 }, (_, i) => {
             const side = i % 2 === 0 ? 1 : -1; // 1 = left cannon, -1 = right cannon
@@ -360,7 +360,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 vy: -(power * (0.75 + Math.random() * 0.45)),
                 size: 6 + Math.random() * 6,
                 spin: Math.random() * Math.PI,
-                colour: partyColours[Math.floor(Math.random() * partyColours.length)]
+                color: partyColors[Math.floor(Math.random() * partyColors.length)]
             };
         });
 
@@ -383,7 +383,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 visible++;
                 const cos = Math.cos(p.spin), sin = Math.sin(p.spin);
                 ctx.setTransform(cos, sin, -sin, cos, p.x, p.y);
-                ctx.fillStyle = p.colour;
+                ctx.fillStyle = p.color;
                 ctx.fillRect(-p.size / 2, -p.size / 4, p.size, p.size / 2);
             }
             // Stop once everything has landed, or after 3.5s at most

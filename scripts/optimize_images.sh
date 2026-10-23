@@ -42,7 +42,7 @@ for src in originals/*.{jpg,jpeg,png,heic,webp}; do
     width=$(sips -g pixelWidth "$src" | awk '/pixelWidth/ {print $2}')
     height=$(sips -g pixelHeight "$src" | awk '/pixelHeight/ {print $2}')
 
-    # Scale the shorter side to SIZE, then crop the centre square (matches the card's cover crop)
+    # Scale the shorter side to SIZE, then crop the center square (matches the card's cover crop)
     if [ "$width" -lt "$height" ]; then
         sips -s format jpeg -s formatOptions "$QUALITY" --resampleWidth "$SIZE" "$src" --out "$out" > /dev/null
     else

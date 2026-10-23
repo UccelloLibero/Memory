@@ -1,4 +1,4 @@
-/* Fredoka, self-hosted so no visitor data goes to Google (licence: fonts/OFL.txt) */
+/* Fredoka, self-hosted so no visitor data goes to Google (license: fonts/OFL.txt) */
 @font-face {
     font-family: 'Fredoka';
     font-style: normal;
@@ -30,7 +30,7 @@
     --pink: #ff6fae;
     --cyan: #4fd8ff;
 
-    /* Pair score colours (match the share emoji) */
+    /* Pair score colors (match the share emoji) */
     --lvl-1: #4ade80;
     --lvl-2: #a78bfa;
     --lvl-3: #60a5fa;
@@ -514,7 +514,7 @@ h1, h2 {
     filter: blur(6px);
 }
 
-/* The whole photo, uncropped and centred */
+/* The whole photo, uncropped and centered */
 .card-photo {
     position: absolute;
     inset: 0;
@@ -569,8 +569,8 @@ h1, h2 {
 }
 
 .card.matched .card-front {
-    border-color: var(--pair-colour, var(--lime));
-    box-shadow: 0 0 0 3px var(--pair-colour, var(--lime)), 0 0 26px var(--pair-colour, var(--lime));
+    border-color: var(--pair-color, var(--lime));
+    box-shadow: 0 0 0 3px var(--pair-color, var(--lime)), 0 0 26px var(--pair-color, var(--lime));
 }
 
 @keyframes celebrate {

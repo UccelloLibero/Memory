@@ -13,7 +13,7 @@ A whimsical card-matching game. Flip two cards, remember where they were, and cl
 - **6 pairs, no move limit.** Keep going until every pair is found.
 - **Memory, not luck.** Exploring new cards is free. Only slips, misses you could have avoided, cost points.
 - **Streaks pay.** +100 per match, +50 more for each match in a row, −25 per slip.
-- **Stars, colours and a personal best** to chase, plus results you can share.
+- **Stars, colors and a personal best** to chase, plus results you can share.
 - **No data collected.** Scores stay in your browser, and the font is self-hosted.
 
 ## Tech stack
