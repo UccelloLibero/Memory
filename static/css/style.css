@@ -410,6 +410,26 @@ h1, h2 {
     fill: var(--lvl-4);
 }
 
+/* Sound on/off button, styled like the other pills */
+.pill-sound {
+    color: var(--text);
+    font: inherit;
+    cursor: pointer;
+}
+
+.pill-sound svg {
+    fill: var(--text);
+}
+
+.pill-sound[aria-pressed="true"] .icon-off,
+.pill-sound[aria-pressed="false"] .icon-on {
+    display: none;
+}
+
+.pill-sound[aria-pressed="false"] svg {
+    fill: var(--muted);
+}
+
 .pill-score svg {
     fill: var(--pink);
 }

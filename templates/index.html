@@ -18,7 +18,7 @@
     </h1>
     <p class="tagline">Flip. Remember. Match. In as few moves as you can.</p>
 
-    <a href="/game" class="btn btn-play">
+    <a href="/game" id="play-button" class="btn btn-play">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12-7.5a1 1 0 0 0 0-1.72l-12-7.5A1 1 0 0 0 7 4.5z"/></svg>
         Play
     </a>
@@ -40,6 +40,16 @@
 
 {% block scripts %}
 <script>
+    // Play a start jingle, then go to the game once it has had a moment to sound
+    document.getElementById('play-button').addEventListener('click', event => {
+        const plainClick = event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey;
+        if (!plainClick || !window.memorySound.enabled) return;
+        event.preventDefault();
+        const destination = event.currentTarget.href; // currentTarget is gone once the click event ends
+        window.memorySound.start();
+        setTimeout(() => { window.location.href = destination; }, 350);
+    });
+
     // Show the player's personal best if they have one
     try {
         const best = JSON.parse(localStorage.getItem('memory-best'));

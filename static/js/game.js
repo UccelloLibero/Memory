@@ -91,6 +91,23 @@ document.addEventListener('DOMContentLoaded', () => {
         return stats;
     }
 
+    const sound = window.memorySound; // Shared sound effects from sound.js
+
+    function updateSoundToggle() {
+        const button = document.getElementById('sound-toggle');
+        const label = sound.enabled ? 'Sound on' : 'Sound off';
+        button.setAttribute('aria-pressed', String(sound.enabled));
+        button.setAttribute('aria-label', label);
+        button.title = label;
+    }
+
+    document.getElementById('sound-toggle').addEventListener('click', () => {
+        sound.toggle();
+        updateSoundToggle();
+        sound.flip(); // A little tick confirms sound is back on
+    });
+    updateSoundToggle();
+
     function updateStats() {
         document.getElementById('moves').innerText = moves;
         document.getElementById('score').innerText = score;
@@ -216,6 +233,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const wasSeen = parseInt(card.dataset.flipCount) > 0;
             card.classList.add('flipped');
+            sound.flip();
             card.dataset.flipCount = parseInt(card.dataset.flipCount) + 1;
             flippedCards.push({ card, image, wasSeen });
 
@@ -263,7 +281,10 @@ document.addEventListener('DOMContentLoaded', () => {
             dot.style.background = color;
             dot.classList.add('filled');
 
-            if (matchedPairs < totalPairs) cheer(level, points);
+            if (matchedPairs < totalPairs) {
+                cheer(level, points);
+                setTimeout(() => sound.match(combo), 250);
+            }
             flippedCards = [];
         } else {
             if (isSlip(firstCard, secondCard)) {
@@ -273,6 +294,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 updateStats();
                 bump(document.getElementById('score'));
                 showToast(`−${slipPenalty} Slip!`, 'slip');
+                setTimeout(sound.slip, 450);
             } else {
                 explores++; // Exploring is free and keeps the streak alive
             }
@@ -447,6 +469,7 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
         document.body.appendChild(overlay);
         confetti();
+        sound.win();
 
         // Floating chip that brings the scorecard back while admiring the board
         const resultsChip = document.createElement('button');
@@ -494,6 +517,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Play Again Button
         document.getElementById('play-again-button').addEventListener('click', () => {
+            sound.start();
             overlay.remove();
             resultsChip.remove();
             gameBoard.classList.remove('admiring');
