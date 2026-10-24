@@ -401,6 +401,21 @@ h1, h2 {
     font-size: 1.05rem;
 }
 
+/* Reserve room for each number's usual longest value, so pills don't resize as numbers
+   change. Resizing made the last pill wrap to a new line and the board jump on phones */
+#moves {
+    display: inline-block;
+    min-width: 2ch;
+    text-align: center;
+}
+
+#score,
+#best {
+    display: inline-block;
+    min-width: 4ch;
+    text-align: center;
+}
+
 .pill-label {
     color: var(--muted);
     font-size: 0.9rem;
@@ -1030,8 +1045,22 @@ h1, h2 {
         padding: 16px 16px var(--dock-space);
     }
 
+    .hud {
+        gap: 5px;
+    }
+
     .pill {
-        padding: 7px 11px;
+        gap: 4px;
+        padding: 6px 9px;
+    }
+
+    .pill svg {
+        width: 15px;
+        height: 15px;
+    }
+
+    .pill strong {
+        font-size: 0.95rem;
     }
 
     .pill-label {
@@ -1059,6 +1088,27 @@ h1, h2 {
         flex-direction: column;
         align-items: stretch;
         text-align: center;
+    }
+}
+
+/* Narrow phones (e.g. 360px Android): tighten the header a little more so it stays on one line */
+@media (max-width: 374px) {
+    .stage {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    .hud {
+        gap: 4px;
+    }
+
+    .pill {
+        gap: 3px;
+        padding: 5px 7px;
+    }
+
+    .pill strong {
+        font-size: 0.9rem;
     }
 }
 
