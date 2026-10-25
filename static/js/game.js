@@ -3,9 +3,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const progress = document.getElementById('progress');
     const toast = document.getElementById('toast');
     const imagePool = JSON.parse(gameBoard.dataset.images); // Every card image on the server
-    const totalPairs = Math.min(6, imagePool.length);
-    const bestKey = 'memory-best';
-    const sessionKey = 'memory-session';
+
+    // Levels: more pairs each time. `stars` is the most slips allowed for 3 and 2 stars,
+    // a little looser on bigger boards; "Flawless" always means zero slips
+    const levels = {
+        1: { pairs: 6, stars: [0, 2] },
+        2: { pairs: 8, stars: [1, 3] },
+        3: { pairs: 12, stars: [2, 5] }
+    };
+    const levelKey = 'memory-level';
+    const level = chooseLevel();
+    const totalPairs = Math.min(levels[level].pairs, imagePool.length);
+    const bestKey = `memory-best-${level}`;
+    const sessionKey = `memory-session-${level}`;
     const matchPoints = 100;
     const streakBonus = 50; // Extra per match in a row: 2nd +50, 3rd +100, ...
     const slipPenalty = 25; // Only misses the player could have avoided cost points
@@ -24,10 +34,30 @@ document.addEventListener('DOMContentLoaded', () => {
     let timer = null;
     let timeElapsed = 0;
 
+    // Level from the address (?level=2), else the last one played, else 1
+    function chooseLevel() {
+        let chosen = parseInt(new URLSearchParams(window.location.search).get('level'));
+        if (!levels[chosen]) {
+            try {
+                chosen = parseInt(localStorage.getItem(levelKey));
+            } catch {
+                chosen = 1;
+            }
+        }
+        if (!levels[chosen]) chosen = 1;
+        try {
+            localStorage.setItem(levelKey, String(chosen));
+        } catch {
+            // Storage unavailable; the level just won't be remembered
+        }
+        return chosen;
+    }
+
     // Star rating by slips, so luck in the shuffle doesn't decide it
     function getStars(slips) {
-        if (slips === 0) return 3;
-        if (slips <= 2) return 2;
+        const [threeStars, twoStars] = levels[level].stars;
+        if (slips <= threeStars) return 3;
+        if (slips <= twoStars) return 2;
         return 1;
     }
 
@@ -48,7 +78,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Personal best: highest score, then fewest moves, then fastest time
     function loadBest() {
         try {
-            const best = JSON.parse(localStorage.getItem(bestKey));
+            let best = JSON.parse(localStorage.getItem(bestKey));
+            // Level 1 bests from before levels existed were saved without a level number
+            if (!best && level === 1) best = JSON.parse(localStorage.getItem('memory-best'));
             // Ignore bests saved under older scoring rules
             return best && best.v === bestVersion ? best : null;
         } catch {
@@ -429,17 +461,23 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         const sessionStats = recordSessionGame();
 
-        const headline = ['Flawless!', 'Nice work!', 'All pairs found!'][3 - stars];
+        const headline = slips === 0 ? 'Flawless!' : ['Brilliant!', 'Nice work!', 'All pairs found!'][3 - stars];
         const slipLine = `${slips} ${slips === 1 ? 'slip' : 'slips'} · ${explores} exploring`;
         const bestLine = newBest
             ? '🏆 New personal best!'
             : `Best: ${previousBest.score} points`;
         const sessionLine = `This session: ${sessionStats.games} ${sessionStats.games === 1 ? 'game' : 'games'} · top ${sessionStats.bestScore} · avg ${Math.round(sessionStats.totalScore / sessionStats.games)}`;
 
+        // Color squares in rows of 6, so Level 3's 12 stay readable when shared
+        const squareRows = [];
+        for (let i = 0; i < pairLevels.length; i += 6) {
+            squareRows.push(pairLevels.slice(i, i + 6).map(levelEmoji).join('  '));
+        }
+
         const resultsText = [
-            `Memory ${formatStars(stars)} ${score} pts`,
+            `Memory · Level ${level} ${formatStars(stars)} ${score} pts`,
             '',
-            pairLevels.map(levelEmoji).join('  '),
+            ...squareRows,
             '',
             `Slips: ${slips} · Moves: ${moves}`,
             `Time: ${formatTime(timeElapsed)}`
@@ -449,6 +487,7 @@ document.addEventListener('DOMContentLoaded', () => {
         overlay.className = 'results-overlay';
         overlay.innerHTML = `
             <div class="results-container" role="dialog" aria-label="Results">
+                <p class="results-level">Level ${level}</p>
                 <h2>${headline}</h2>
                 <div class="stars" aria-label="${stars} out of 3 stars">
                     ${[0, 1, 2].map(i => `<span class="star ${i < stars ? 'earned' : ''}" style="--i: ${i}">★</span>`).join('')}
@@ -462,6 +501,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
                 <div class="results-actions">
                     <button id="play-again-button" class="btn btn-primary">Play Again</button>
+                    ${level < 3 ? `<button id="next-level-button" class="btn btn-ghost">Try Level ${level + 1} →</button>` : ''}
                     <button id="admire-button" class="btn btn-ghost">Admire your board</button>
                     <button id="share-button" class="btn btn-ghost">Share Results</button>
                 </div>
@@ -515,6 +555,15 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
+        // Next Level Button: jingle, then load the bigger board
+        const nextLevelButton = document.getElementById('next-level-button');
+        if (nextLevelButton) {
+            nextLevelButton.addEventListener('click', () => {
+                sound.start();
+                setTimeout(() => { window.location.href = `/game?level=${level + 1}`; }, 350);
+            });
+        }
+
         // Play Again Button
         document.getElementById('play-again-button').addEventListener('click', () => {
             sound.start();
@@ -537,5 +586,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Start the game
+    gameBoard.dataset.level = level;
+    document.getElementById('level-badge').innerText = `Level ${level}`;
     initializeGame();
 });

@@ -41,17 +41,9 @@
     --radius: 18px;
     --dock-space: 96px;
 
-    /* Board layout: 4x3 on wide screens, 3x4 portrait, 6x2 short landscape */
-    --cols: 4;
-    --rows: 3;
     --gap: 14px;
-    /* Height used by the HUD, progress dots, dock and padding */
-    --chrome: 250px;
-    --card: min(
-        calc((100vw - 40px - (var(--cols) - 1) * var(--gap)) / var(--cols)),
-        calc((100dvh - var(--chrome) - (var(--rows) - 1) * var(--gap)) / var(--rows)),
-        170px
-    );
+    /* Height used by the HUD, level row, dock and padding */
+    --chrome: 260px;
 }
 
 *, *::before, *::after {
@@ -288,6 +280,70 @@ h1, h2 {
     font-size: 1.1rem;
 }
 
+/* Level picker */
+.level-picker {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 6px;
+}
+
+.level-option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    width: 104px;
+    padding: 12px 8px 10px;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--muted);
+    font: inherit;
+    cursor: pointer;
+    transition: transform 0.15s, border-color 0.2s, color 0.2s, box-shadow 0.2s;
+}
+
+.level-option:hover {
+    transform: translateY(-2px);
+    color: var(--text);
+}
+
+.level-option[aria-checked="true"] {
+    border-color: var(--lime);
+    color: var(--text);
+    box-shadow: 0 0 0 1px var(--lime), 0 8px 24px rgba(182, 233, 74, 0.18);
+}
+
+/* Tiny card grid that grows with the level */
+.level-grid {
+    display: grid;
+    grid-template-columns: repeat(var(--grid-cols), 7px);
+    gap: 2px;
+    height: 34px;
+    align-content: center;
+}
+
+.level-grid i {
+    width: 7px;
+    height: 7px;
+    border-radius: 2px;
+    background: rgba(255, 255, 255, 0.18);
+}
+
+.level-option[aria-checked="true"] .level-grid i {
+    background: var(--pink);
+}
+
+.level-name {
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.level-cards {
+    font-size: 0.75rem;
+    color: var(--muted);
+}
+
 .home-best {
     margin: 6px 0 0;
     padding: 6px 14px;
@@ -457,10 +513,30 @@ h1, h2 {
     50% { transform: scale(1.12); }
 }
 
+/* Level badge and pair progress share one row */
+.level-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 14px 0 18px;
+}
+
+.level-badge {
+    padding: 3px 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(182, 233, 74, 0.45);
+    color: var(--lime);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
 .progress {
     display: flex;
+    flex-wrap: wrap;
     gap: 8px;
-    margin: 14px 0 18px;
 }
 
 .progress-dot {
@@ -480,12 +556,32 @@ h1, h2 {
     position: relative;
 }
 
+/* Grid per level (wide screens). Portrait and short-landscape versions are under Responsive.
+   Level 1: 4x3 (12 cards), Level 2: 4x4 (16), Level 3: 6x4 (24) */
 .game-board {
+    --cols: 4;
+    --rows: 3;
+    /* Defined here, not on :root, so it uses this board's columns and rows */
+    --card: min(
+        calc((100vw - 40px - (var(--cols) - 1) * var(--gap)) / var(--cols)),
+        calc((100dvh - var(--chrome) - (var(--rows) - 1) * var(--gap)) / var(--rows)),
+        170px
+    );
     display: grid;
     grid-template-columns: repeat(var(--cols), var(--card));
     grid-auto-rows: var(--card);
     gap: var(--gap);
     justify-content: center;
+}
+
+.game-board[data-level="2"] {
+    --cols: 4;
+    --rows: 4;
+}
+
+.game-board[data-level="3"] {
+    --cols: 6;
+    --rows: 4;
 }
 
 .card {
@@ -686,6 +782,7 @@ h1, h2 {
 .results-overlay {
     position: fixed;
     inset: 0;
+    overflow-y: auto; /* Safety net only; the card is sized to fit without scrolling */
     z-index: 100;
     display: grid;
     place-items: center;
@@ -786,11 +883,23 @@ h1, h2 {
     75% { transform: rotate(4deg) scale(1.06); }
 }
 
+/* Up to 6 squares per row (Level 3 has 12) */
 .results-grid {
     display: flex;
+    flex-wrap: wrap;
     justify-content: center;
     gap: 8px;
-    margin: 18px 0 22px;
+    max-width: 220px;
+    margin: 18px auto 22px;
+}
+
+.results-level {
+    margin: 0 0 4px;
+    color: var(--lime);
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
 }
 
 .results-grid .swatch {
@@ -1007,19 +1116,42 @@ h1, h2 {
 
 /* ---------- Responsive ---------- */
 
-/* Portrait tablets and phones: 3 columns x 4 rows */
+/* Portrait tablets and phones: Level 1 3x4, Level 2 4x4, Level 3 4x6 */
 @media (max-width: 767px), (orientation: portrait) {
-    :root {
+    .game-board {
         --cols: 3;
         --rows: 4;
     }
+
+    .game-board[data-level="2"] {
+        --cols: 4;
+        --rows: 4;
+    }
+
+    .game-board[data-level="3"] {
+        --cols: 4;
+        --rows: 6;
+    }
 }
 
-/* Short landscape screens (phones on their side): 6 columns x 2 rows */
+/* Short landscape screens (phones on their side): Level 1 6x2, Level 2 8x2, Level 3 8x3 */
 @media (orientation: landscape) and (max-height: 500px) {
-    :root {
+    .game-board {
         --cols: 6;
         --rows: 2;
+    }
+
+    .game-board[data-level="2"] {
+        --cols: 8;
+        --rows: 2;
+    }
+
+    .game-board[data-level="3"] {
+        --cols: 8;
+        --rows: 3;
+    }
+
+    :root {
         --chrome: 200px;
         --gap: 10px;
         --dock-space: 80px;
@@ -1029,7 +1161,7 @@ h1, h2 {
         padding-top: 12px;
     }
 
-    .progress {
+    .level-row {
         margin: 8px 0 10px;
     }
 }
@@ -1109,6 +1241,149 @@ h1, h2 {
 
     .pill strong {
         font-size: 0.9rem;
+    }
+}
+
+/* ---------- Never scroll: fit the home page and results card to short screens ---------- */
+
+/* Shorter screens: drop the decorative card fan first */
+@media (max-height: 800px) {
+    .card-fan {
+        display: none;
+    }
+}
+
+/* Small phones: also drop the color legend and its caption */
+@media (max-height: 680px) {
+    .legend,
+    .fine-print {
+        display: none;
+    }
+
+    .credit {
+        margin-top: 8px;
+    }
+}
+
+/* Results card on short screens: tighter spacing, smaller stars and score */
+@media (max-height: 720px) {
+    .results-overlay {
+        padding: 10px;
+    }
+
+    .results-container {
+        padding: 16px 18px 14px;
+    }
+
+    .results-container h2 {
+        font-size: 1.4rem;
+    }
+
+    .stars {
+        margin: 4px 0 2px;
+        font-size: 1.8rem;
+    }
+
+    .results-score strong {
+        font-size: 1.8rem;
+    }
+
+    .results-stats {
+        margin-bottom: 4px;
+        font-size: 0.9rem;
+    }
+
+    .results-session {
+        display: none;
+    }
+
+    .results-grid {
+        gap: 6px;
+        margin: 10px auto 12px;
+    }
+
+    .results-grid .swatch {
+        width: 22px;
+        height: 22px;
+        border-radius: 6px;
+    }
+
+    .results-actions {
+        gap: 8px;
+    }
+
+    .results-actions .btn {
+        padding: 9px 20px;
+        font-size: 0.95rem;
+    }
+}
+
+/* Phones held sideways: compact home, two-column results card */
+@media (orientation: landscape) and (max-height: 500px) {
+    .hero {
+        gap: 8px;
+    }
+
+    .title {
+        font-size: 2.6rem;
+    }
+
+    .tagline,
+    .legend,
+    .fine-print {
+        display: none;
+    }
+
+    .level-option {
+        flex-direction: row;
+        gap: 8px;
+        width: auto;
+        padding: 8px 12px;
+    }
+
+    .level-grid {
+        height: auto;
+        grid-template-columns: repeat(var(--grid-cols), 5px);
+    }
+
+    .level-grid i {
+        width: 5px;
+        height: 5px;
+    }
+
+    .btn-play {
+        padding: 10px 30px;
+        font-size: 1.1rem;
+    }
+
+    .home-best {
+        margin: 0;
+    }
+
+    .credit {
+        margin-top: 0;
+    }
+
+    .results-container {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        column-gap: 24px;
+        align-items: center;
+        max-width: 620px;
+    }
+
+    .results-container > * {
+        grid-column: 1;
+        justify-self: center;
+    }
+
+    .results-container > .results-actions {
+        grid-column: 2;
+        grid-row: 1 / span 9;
+    }
+
+    .results-actions .btn {
+        min-width: 180px;
     }
 }
 

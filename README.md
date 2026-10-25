@@ -2,7 +2,7 @@
 
 A whimsical card-matching game. Flip two cards, remember where they were, and clear the board in as few moves as you can.
 
-<!-- **[▶ Play it live](https://your-app-name.herokuapp.com)** -->
+**[▶ Play it live](https://memory-match-game-faa5fc6845ab.herokuapp.com)**
 
 | Home | Game | About |
 |:---:|:---:|:---:|
@@ -10,7 +10,7 @@ A whimsical card-matching game. Flip two cards, remember where they were, and cl
 
 ## How it plays
 
-- **6 pairs, no move limit.** Keep going until every pair is found.
+- **Three levels: 12, 16 or 24 cards.** Pick one and keep going until every pair is found.
 - **Memory, not luck.** Exploring new cards is free. Only slips, misses you could have avoided, cost points.
 - **Streaks pay.** +100 per match, +50 more for each match in a row, −25 per slip.
 - **Stars, colors and a personal best** to chase, plus results you can share.

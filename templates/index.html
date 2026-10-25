@@ -18,7 +18,18 @@
     </h1>
     <p class="tagline">Flip. Remember. Match. In as few moves as you can.</p>
 
-    <a href="/game" id="play-button" class="btn btn-play">
+    <!-- Level picker: a little card grid per level, no difficulty labels -->
+    <div class="level-picker" role="radiogroup" aria-label="Choose a level">
+        {% for level, cols, cards in [(1, 4, 12), (2, 4, 16), (3, 6, 24)] %}
+        <button type="button" class="level-option" role="radio" aria-checked="{{ 'true' if level == 1 else 'false' }}" data-level="{{ level }}">
+            <span class="level-grid" style="--grid-cols: {{ cols }}" aria-hidden="true">{% for i in range(cards) %}<i></i>{% endfor %}</span>
+            <span class="level-name">Level {{ level }}</span>
+            <span class="level-cards">{{ cards }} cards</span>
+        </button>
+        {% endfor %}
+    </div>
+
+    <a href="/game?level=1" id="play-button" class="btn btn-play">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12-7.5a1 1 0 0 0 0-1.72l-12-7.5A1 1 0 0 0 7 4.5z"/></svg>
         Play
     </a>
@@ -50,14 +61,42 @@
         setTimeout(() => { window.location.href = destination; }, 350);
     });
 
-    // Show the player's personal best if they have one
-    try {
-        const best = JSON.parse(localStorage.getItem('memory-best'));
-        if (best && best.v === 2) {
-            const el = document.getElementById('home-best');
-            el.textContent = `🏆 Your best: ${best.score} points`;
-            el.hidden = false;
+    // Personal best for a level (Level 1 bests from before levels were saved without a number)
+    function loadBest(level) {
+        try {
+            let best = JSON.parse(localStorage.getItem(`memory-best-${level}`));
+            if (!best && level === 1) best = JSON.parse(localStorage.getItem('memory-best'));
+            return best && best.v === 2 ? best : null;
+        } catch {
+            return null;
         }
+    }
+
+    // Choosing a level updates the Play link and the best score shown
+    const playButton = document.getElementById('play-button');
+    const bestLine = document.getElementById('home-best');
+    const options = [...document.querySelectorAll('.level-option')];
+
+    function selectLevel(level) {
+        options.forEach(option => option.setAttribute('aria-checked', String(Number(option.dataset.level) === level)));
+        playButton.href = `/game?level=${level}`;
+        const best = loadBest(level);
+        bestLine.hidden = !best;
+        if (best) bestLine.textContent = `🏆 Your best on Level ${level}: ${best.score} points`;
+        try {
+            localStorage.setItem('memory-level', String(level));
+        } catch {}
+    }
+
+    options.forEach(option => option.addEventListener('click', () => {
+        selectLevel(Number(option.dataset.level));
+        window.memorySound.flip();
+    }));
+
+    let savedLevel = 1;
+    try {
+        savedLevel = Number(localStorage.getItem('memory-level')) || 1;
     } catch {}
+    selectLevel([1, 2, 3].includes(savedLevel) ? savedLevel : 1);
 </script>
 {% endblock %}

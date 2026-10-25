@@ -5,7 +5,7 @@
 {% block content %}
 <section class="about">
     <h1 class="page-title">How to play</h1>
-    <p class="lead">Memory is a fast card-matching game that tests your recall. Find all 6 pairs in as few moves as you can.</p>
+    <p class="lead">Memory is a fast card-matching game that tests your recall. Pick a level, then find every pair in as few moves as you can.</p>
 
     <ol class="steps">
         <li class="panel">
@@ -32,23 +32,33 @@
     </ol>
 
     <div class="panel">
+        <h2>Levels</h2>
+        <ul class="rating-list">
+            <li><span class="rating">Level 1</span> 12 cards, 6 pairs</li>
+            <li><span class="rating">Level 2</span> 16 cards, 8 pairs</li>
+            <li><span class="rating">Level 3</span> 24 cards, 12 pairs</li>
+        </ul>
+        <p class="muted">Choose your level on the home page. Each level keeps its own personal best.</p>
+    </div>
+
+    <div class="panel">
         <h2>Points</h2>
         <ul class="rating-list">
             <li><span class="rating">+100</span> for every match</li>
             <li><span class="rating">+50</span> extra for each match in a row: 2 in a row is +150, 3 in a row +200, and so on</li>
             <li><span class="rating">−25</span> for every slip, and it resets your streak</li>
         </ul>
-        <p class="muted">A slip is a miss you could have avoided: you'd already seen the match, or you flipped a card you'd already seen. Misses while exploring new cards are free. A flawless game scores 1350. Your personal best is your highest score.</p>
+        <p class="muted">A slip is a miss you could have avoided: you'd already seen the match, or you flipped a card you'd already seen. Misses while exploring new cards are free. A flawless game scores 1,350 on Level 1, 2,200 on Level 2 and 4,500 on Level 3.</p>
     </div>
 
     <div class="panel">
         <h2>Stars</h2>
         <ul class="rating-list">
-            <li><span class="rating">★★★</span> No slips</li>
-            <li><span class="rating">★★☆</span> 1 or 2 slips</li>
-            <li><span class="rating">★☆☆</span> 3 slips or more</li>
+            <li><span class="rating">★★★</span> Level 1: no slips. Level 2: up to 1. Level 3: up to 2.</li>
+            <li><span class="rating">★★☆</span> Level 1: up to 2 slips. Level 2: up to 3. Level 3: up to 5.</li>
+            <li><span class="rating">★☆☆</span> Anything more</li>
         </ul>
-        <p class="muted">Stars reward memory, not luck. Moves and time break ties on your personal best.</p>
+        <p class="muted">Stars reward memory, not luck. A game with zero slips is Flawless. Moves and time break ties on your personal best.</p>
     </div>
 
     <div class="panel">
@@ -95,8 +105,11 @@
         }
         clearTimeout(confirmTimer);
         try {
-            localStorage.removeItem('memory-best');
-            sessionStorage.removeItem('memory-session');
+            // Every level's best and session stats, plus the pre-levels keys
+            ['', '-1', '-2', '-3'].forEach(suffix => {
+                localStorage.removeItem('memory-best' + suffix);
+                sessionStorage.removeItem('memory-session' + suffix);
+            });
         } catch {}
         resetButton.classList.remove('confirming');
         resetButton.innerText = 'Scores cleared ✓';
