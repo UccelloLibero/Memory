@@ -2,7 +2,7 @@
 
 A whimsical card-matching game. Flip two cards, remember where they were, and clear the board in as few moves as you can.
 
-**[▶ Play it live](https://memory-match-game-faa5fc6845ab.herokuapp.com)**
+**[▶ Play it live](https://memory.mcpherson.io)**
 
 | Home | Game | About |
 |:---:|:---:|:---:|
@@ -18,7 +18,7 @@ A whimsical card-matching game. Flip two cards, remember where they were, and cl
 
 ## Tech stack
 
-- **Backend:** Python, Flask, served by Gunicorn on Heroku
+- **Backend:** Python, Flask, served by Gunicorn in a Docker container
 - **Frontend:** vanilla JavaScript, HTML (Jinja templates) and CSS, with no frameworks
 - **Storage:** browser `localStorage` and `sessionStorage` only, with no database
 - **Assets:** self-hosted Fredoka font, hand-drawn SVG icons, images auto-optimized with macOS `sips` in a git pre-commit hook
